@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<!-- HTML HEAD ELEMENT - DEFINES CSS FOR THE PAGE -->
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { background-color: #002200; }
+        h3,p { color: #FFFF00; }
+        canvas { background-color: #000044; }
+        #debugContainer { color: #FFFFFF; position: absolute; z-index: 100;}
+    </style>
+    <title>Objects</title>
+</head>
+
+<!-- ==================================================================== -->
+
+<!-- HTML BODY TAG - DEFINES THE HTML LAYOUT FOR THE PAGE -->
+<body oncontextmenu="return false;">
+
+<!-- INCLUDE SCRIPTS -->
+<script src="../threejs/build/three.js"></script>
+<script src="gameEngine3.js"></script>
+
+<!-- GAME SPECIFIC INCLUDES -->
+<script src="scene3bData.js"></script>
+
+<!-- DEFINE LEFT DIV TAG - FOR DEBUG PRINTOUTS -->
+<div id="debugContainer">
+<pre id="debug"></pre>
+</div>
+
+<!-- MAKE CANVAS AND OTHER STARTING ELEMENTS  -->
+<center>
+    <br/>
+    <canvas id="gameCanvas" width="700" height="500"></canvas>
+    <h3 id="scoreboard">Objects</h3>
+</center>
+
+
+<script>
+//----------------------------------------------------------------------//
+// THE MAIN CODE FOR THE GAME
+//----------------------------------------------------------------------//
+
+window.onload = function()
+{
+    // Initialize the engine
+    engine.DEBUG = false;
+    var canvas = document.getElementById("gameCanvas");
+    initEngine(canvas);
+
+    // Parse level0 (into a Three.js scene) and star the game loop
+    parseScene(level0); // upfront loaded Javscript object
+    startGameLoop();
+}
+
+//----------------------------------------------------------------------//
+// EVENT HANDLERS
+//----------------------------------------------------------------------//
+
+var fnum = 0;
+
+var rotateScript = function(sceneNode)
+{
+    fnum++;
+    var rotationSpeed = sceneNode.userData["rotationSpeed"];
+    sceneNode.rotateOnAxis(constants.YAXIS, rotationSpeed/60.0);
+}
+
+var bounceScript = function(sceneNode)
+{
+    var bounceBottom = sceneNode.userData["bounceBottom"];
+    var bounceHeight = sceneNode.userData["bounceHeight"];
+    var index = sceneNode.userData["index"];
+    if (index === undefined) index = 0.0;
+
+    var y = Math.cos(fnum*(0.005+index*0.001));
+    y = Math.pow(Math.abs(y), 0.8) * bounceHeight + bounceBottom;
+    //y = y * y * bounceHeight + bounceBottom;
+    
+    var x = 2.5 * Math.cos(index*1.24 + fnum*0.001);
+    var z = 1.5 * Math.sin(index*1.24 + fnum*0.001);
+
+    sceneNode.position.x = x;
+    sceneNode.position.y = y;
+    sceneNode.position.z = z;
+}
+
+function cameraScript(sceneNode)
+{
+    var fov = 20 + Math.cos(fnum*0.0002) * 6.0;
+    sceneNode.fov = fov;
+}
+
+
+</script>
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<!-- HTML HEAD ELEMENT - DEFINES CSS FOR THE PAGE -->
+<head>
+	<meta charset="utf-8">
+    <style>
+	    body { background-color: #002200; }
+	    h3,p { color: #FFFF00; }
+	    canvas { background-color: #000044; }
+	    #debugContainer { color: #FFFFFF; position: absolute; z-index: 100;}
+    </style>
+    <title>3D Text</title>
+</head>
+
+<!-- ==================================================================== -->
+
+<!-- HTML BODY TAG - DEFINES THE HTML LAYOUT FOR THE PAGE -->
+<body oncontextmenu="return false;">
+
+<!-- INCLUDE SCRIPTS -->
+<script src="../threejs/build/three.js"></script>
+<script src="gameEngine3.js"></script>
+
+<!-- GAME SPECIFIC INCLUDES -->
+<script src="scene3cSelectData.js"></script>
+
+<!-- DEFINE LEFT DIV TAG - FOR DEBUG PRINTOUTS -->
+<div id="debugContainer">
+<pre id="debug"></pre>
+</div>
+
+<!-- MAKE CANVAS AND OTHER STARTING ELEMENTS  -->
+<center>
+	<br/>
+	<canvas id="gameCanvas" width="600" height="400"></canvas>
+	<h3 id="scoreboard">3D Text</h3>
+</center>
+
+
+<script>
+//----------------------------------------------------------------------//
+// THE MAIN CODE FOR THE GAME
+//----------------------------------------------------------------------//
+
+window.onload = function()
+{
+	// Initialize the engine
+	engine.DEBUG = false;
+	var canvas = document.getElementById("gameCanvas");
+	initEngine(canvas);
+	gameState.onMouseDown = onMouseDown;
+
+	// Parse level0 (into a Three.js scene) and star the game loop
+	parseScene(level0); // upfront loaded Javscript object
+	startGameLoop();
+}
+
+//----------------------------------------------------------------------//
+// EVENT HANDLERS
+//----------------------------------------------------------------------//
+
+var spinner = function(sceneNode)
+{
+	var spin = sceneNode.userData["spin"] || 0.02;
+	spin *= 0.97;
+	sceneNode.userData["spin"] = spin;
+
+	sceneNode.rotateOnAxis(constants.YAXIS, spin);
+}
+
+var onMouseDown = function(event)
+{
+	var clientX = event.clientX;
+	var clientY = event.clientY;
+	var canvas = engine.canvas;
+	var camera = gameState.camera;
+	var objects = gameState.scene.children;
+
+	var intersected = rayCastSelect(clientX, clientY, canvas, camera, objects);
+	//debug("length " + intersected.length);
+
+	if (intersected.length > 0) {
+		intersected[0].object.userData["spin"] += 0.5;
+	}
+}
+
+// params:
+// clientX, clientY - the screen coordinates (event.clientX)
+// canvas - the canvas where we are drawing 
+// camera - the camera we are viewing the scene through
+// objects - the list of objects to cast against (children of root)
+
+var rayCastSelect = function(clientX, clientY, canvas, camera, objects) 
+{
+    // Get the position on the screen in "normalized" device coordinates.
+    var rect = canvas.getBoundingClientRect();
+    var mx = clientX - rect.left;
+    var my = canvas.height - (clientY - rect.top);
+    var vector = new THREE.Vector3(
+        2*(mx / canvas.width) - 1,
+        2*(my / canvas.height) - 1,
+        0.5);
+    
+    // Get the direction in space to that position in the current camera.
+    vector = vector.unproject(camera);
+    var direction = vector.sub(camera.position).normalize();
+    //debug(direction.x + " " + direction.y + " " + direction.z);
+
+    // Create a Raycaster object and intersect against the objects
+    var raycaster = new THREE.Raycaster(camera.position, direction);
+    var intersects = raycaster.intersectObjects(objects);
+    return intersects;
+}
+
+</script>
+
+</body>
+</html>

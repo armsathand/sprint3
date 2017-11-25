@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<!-- HTML HEAD ELEMENT - DEFINES CSS FOR THE PAGE -->
+<head>
+	<meta charset="utf-8">
+    <style>
+	    body { background-color: #002200; }
+	    h3,p { color: #FFFF00; }
+	    canvas { background-color: #000044; }
+	    #debugContainer { color: #FFFFFF; position: absolute; z-index: 100;}
+    </style>
+    <title>Billboards</title>
+</head>
+
+<!-- ==================================================================== -->
+
+<!-- HTML BODY TAG - DEFINES THE HTML LAYOUT FOR THE PAGE -->
+<body oncontextmenu="return false;">
+
+<!-- INCLUDE SCRIPTS -->
+<script src="../threejs/build/three.js"></script>
+<script src="gameEngine3.js"></script>
+
+<!-- GAME SPECIFIC INCLUDES -->
+<script src="scene3eBillboardData.js"></script>
+
+<!-- DEFINE LEFT DIV TAG - FOR DEBUG PRINTOUTS -->
+<div id="debugContainer">
+<pre id="debug"></pre>
+</div>
+
+<!-- MAKE CANVAS AND OTHER STARTING ELEMENTS  -->
+<center>
+	<br/>
+	<canvas id="gameCanvas" width="600" height="400"></canvas>
+	<h3 id="scoreboard">Billboards</h3>
+</center>
+
+
+<script>
+//----------------------------------------------------------------------//
+// THE MAIN CODE FOR THE GAME
+//----------------------------------------------------------------------//
+
+window.onload = function()
+{
+	// Initialize the engine
+	engine.DEBUG = false;
+	var canvas = document.getElementById("gameCanvas");
+	initEngine(canvas);
+
+	// Parse level0 (into a Three.js scene) and star the game loop
+	parseScene(level0); // upfront loaded Javscript object
+	startGameLoop();
+}
+
+//----------------------------------------------------------------------//
+// EVENT HANDLERS
+//----------------------------------------------------------------------//
+
+var fnum = 0;
+var moveCamera = function(sceneNode)
+{
+	debug("hello");
+	fnum++;
+	var camera = sceneNode;
+	camera.position.x = 7.0 * Math.sin(fnum*0.01);
+	camera.position.z = 7.0 * Math.cos(fnum*0.01);
+	camera.lookAt( new THREE.Vector3(0,0,0) );
+}
+
+var billboard = function(sceneNode)
+{
+	var camera = gameState.camera;
+	if (camera) {
+		var dx = camera.position.x - sceneNode.position.x;
+		var dz = camera.position.z - sceneNode.position.z;
+		var angle = Math.atan2(dx,dz); 
+		sceneNode.rotation.y = angle;
+	}
+}
+
+</script>
+
+</body>
+</html>
